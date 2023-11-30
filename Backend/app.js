@@ -1,6 +1,9 @@
 const express = require('express'); 
-//const multer = require('multer'); // Handle file uploads
+const multer = require('multer'); // Handle file uploads
 const database = require('./database'); // Database functions file
+const path = require('path');
+const fs = require('fs');
+
   
 const app = express(); 
 const PORT = 3000; 
@@ -9,7 +12,19 @@ app.use(express.urlencoded({ extended: true }));
 
 const uploadDir = '/home/joanr/Practica5-AD/images/';
 
-//const upload = multer({ dest: uploadDir });
+// Multer configuration for file upload
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        const imageDetails = JSON.parse(req.body.jsonInput);
+        const { filename } = imageDetails;
+        cb(null, filename || file.originalname); // Use 'filename' attribute if available
+    }
+});
+
+const upload = multer({ storage: storage });
 
 // Login endpoint
 app.post('/login', async (req, res) => {
@@ -49,36 +64,33 @@ app.post('/registerUser', async (req, res) => {
     }
 });
 
-/*
+
 // Register image endpoint
 app.post('/register', upload.single('file'), async (req, res) => {
     const { jsonInput } = req.body;
-    const file = req.file;
-
     try {
-        // Parse JSON input
-        const { title, description, keywords, author, creator, creationDate, introductionDate, filename } = JSON.parse(jsonInput);
+        const imageDetails = JSON.parse(jsonInput);
+    
+        const { title, description, keywords, author, creator, creationDate, introductionDate, filename } = imageDetails;
+    
+        // Register image
+        database.connectToDatabase();
+        const saved = database.registerImage(title, description, keywords, author,
+                                             creator, creationDate, introductionDate, filename)
+        database.disconnectFromDatabase();
 
-        // Process the file and save it to the specified directory
-        // Handle file operations here (saving the uploaded file to a directory)
+        if (!saved) {
+        return res.status(500).send('Error registering image');
+        }
 
-        // Save image details to the database
-        await database.registerImage(title, description, keywords, author, creator, creationDate, introductionDate, filename);
-
-        return res.status(200).send(); // Successful image registration
-    } catch (error) {
-        return res.status(500).send(error.message); // Internal server error
+        return res.status(200).send('Image registration successful');
+    } catch (err) {
+    return res.status(400).send('Invalid JSON input');
     }
 });
 
-function writeImage(file_name, fileinputStream) {
-    
-}
 
-function makeDirIfNotExists() {
-
-}
-
+/*
 // Modify image endpoint
 app.post('/modify', upload.none(), async (req, res) => {
     const { jsonInput } = req.body;

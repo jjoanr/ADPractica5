@@ -44,8 +44,9 @@ function login(username, password) {
             (err, row) => {
                 if (err) {
                     reject(err);
+                    resolve(false);
                 } else {
-                    resolve(!!row); // Resolve with true if row exists, false otherwise
+                    resolve(true);
                 }
             }
         );
@@ -61,18 +62,41 @@ function registerUser(username, password) {
             function (err) {
                 if (err) {
                     reject(err);
+                    resolve(false);
                 } else {
                     // Success - Return the ID of the inserted user
-                    resolve(this.lastID);
+                    resolve(true);
                 }
             }
         );
     });
 }
 
+//Register image
+function registerImage(title, description, keywords, author, creator, creationDate, introductionDate, filename) {
+      return new Promise((resolve, reject) => {
+        db.run(
+            'INSERT INTO IMAGE (TITLE, DESCRIPTION, KEYWORDS, AUTHOR, CREATOR, CAPTURE_DATE, STORAGE_DATE, FILENAME) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+            [title, description, keywords, author, creator, creationDate, introductionDate, filename],
+            function (err) {
+                if (err) {
+                    reject(err);
+                    resolve(false);
+                } else {
+                    // Success - Return the ID of the inserted user
+                    resolve(true);
+                }
+            }
+        );
+    });
+}
+
+
+
 module.exports = {
     connectToDatabase,
     disconnectFromDatabase,
     login,
-    registerUser
+    registerUser,
+    registerImage
 };
