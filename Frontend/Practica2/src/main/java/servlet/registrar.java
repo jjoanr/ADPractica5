@@ -64,7 +64,7 @@ public class registrar extends HttpServlet {
         //Obtener respuesta del servicio REST
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {   
-            request.setAttribute("errorMessage", "Login successful.");
+            request.setAttribute("errorMessage", "You registered successfully.");
             request.getRequestDispatcher("login.jsp").forward(request, response);
         } 
         else {

@@ -123,8 +123,13 @@ public class modificarImagen extends HttpServlet {
             request.getRequestDispatcher("list.jsp").forward(request, response);
             connection.disconnect();
         } 
+        else if (responseCode == 409) {
+            request.setAttribute("errorMessage", "Title already used.");
+            request.getRequestDispatcher("modificarImagen.jsp").forward(request, response);  
+            connection.disconnect();
+        }
         else {
-            request.setAttribute("errorMessage", "Title name already used.");
+            request.setAttribute("errorMessage", "Internal error modifying the image.");
             request.getRequestDispatcher("modificarImagen.jsp").forward(request, response);  
             connection.disconnect();
         }

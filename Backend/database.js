@@ -6,7 +6,7 @@ let db = null;
 //Connect to database
 function connectToDatabase(databasePath) {
     return new Promise((resolve, reject) => {
-        db = new sqlite3.Database('/home/joanr/Practica5-AD/database.db', sqlite3.OPEN_READWRITE, (err) => {
+        db = new sqlite3.Database('/home/joanr/ADPractica5/database.db', sqlite3.OPEN_READWRITE, (err) => {
             if (err) {
                 reject(err);
                 return;
@@ -64,7 +64,6 @@ function registerUser(username, password) {
                     reject(err);
                     resolve(false);
                 } else {
-                    // Success - Return the ID of the inserted user
                     resolve(true);
                 }
             }
@@ -83,7 +82,6 @@ function registerImage(title, description, keywords, author, creator, creationDa
                     reject(err);
                     resolve(false);
                 } else {
-                    // Success - Return the ID of the inserted user
                     resolve(true);
                 }
             }
@@ -91,12 +89,82 @@ function registerImage(title, description, keywords, author, creator, creationDa
     });
 }
 
+//List images
+function getImages() {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT * FROM IMAGE', (error, results) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+}
 
+// Check if a title is already used by the creator
+function titleIsUsed(title, creator) {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT * FROM IMAGE WHERE TITLE = ? AND CREATOR = ?';
+        db.get(query, [title, creator], (error, row) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(row ? true : false);
+            }
+        });
+    });
+}
+
+// Modify an existing image
+function modifyImage(title, oldtitle, description, keywords, author, creator, filename) {
+    return new Promise((resolve, reject) => {
+        const query = 'UPDATE IMAGE SET TITLE = ?, DESCRIPTION = ?, KEYWORDS = ?, AUTHOR = ?, FILENAME = ? WHERE TITLE = ? AND CREATOR = ?';
+        db.run(query, [title, description, keywords, author, filename, oldtitle, creator], function(error) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(this.changes);
+            }
+        });
+    });
+}
+
+function deleteImage(filename) {
+    return new Promise((resolve, reject) => {
+        const query = 'DELETE FROM IMAGE WHERE FILENAME = ?';
+        db.run(query, [filename], function(error) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(this.changes);
+            }
+        });
+    });
+}
+
+function searchImages(searchWord) {
+    return new Promise((resolve, reject) => {
+        const query = "SELECT * FROM image WHERE TITLE LIKE ? OR KEYWORDS LIKE ? OR CREATOR LIKE ? OR AUTHOR LIKE ?";;
+        db.all(query, [`%${searchWord}%`, `%${searchWord}%`, `%${searchWord}%`, `%${searchWord}%`], function(error, rows) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
 
 module.exports = {
     connectToDatabase,
     disconnectFromDatabase,
     login,
     registerUser,
-    registerImage
+    registerImage,
+    getImages,
+    titleIsUsed,
+    modifyImage,
+    deleteImage,
+    searchImages,
 };

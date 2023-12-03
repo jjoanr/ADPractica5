@@ -1,8 +1,8 @@
-/home/joanr/Practica5-AD/Frontend/Practica2/src/main/java/servlet/login.java
-/home/joanr/Practica5-AD/Frontend/Practica2/src/main/java/servlet/modificarImagen.java
-/home/joanr/Practica5-AD/Frontend/Practica2/src/main/java/servlet/registrar.java
-/home/joanr/Practica5-AD/Frontend/Practica2/src/main/java/test/practica2/resources/JakartaEE91Resource.java
-/home/joanr/Practica5-AD/Frontend/Practica2/src/main/java/test/practica2/JakartaRestConfiguration.java
-/home/joanr/Practica5-AD/Frontend/Practica2/src/main/java/servlet/buscarImagen.java
-/home/joanr/Practica5-AD/Frontend/Practica2/src/main/java/servlet/registrarImagen.java
-/home/joanr/Practica5-AD/Frontend/Practica2/src/main/java/servlet/eliminarImagen.java
+/home/joanr/ADPractica5/Frontend/Practica2/src/main/java/servlet/registrarImagen.java
+/home/joanr/ADPractica5/Frontend/Practica2/src/main/java/test/practica2/JakartaRestConfiguration.java
+/home/joanr/ADPractica5/Frontend/Practica2/src/main/java/servlet/registrar.java
+/home/joanr/ADPractica5/Frontend/Practica2/src/main/java/servlet/buscarImagen.java
+/home/joanr/ADPractica5/Frontend/Practica2/src/main/java/servlet/eliminarImagen.java
+/home/joanr/ADPractica5/Frontend/Practica2/src/main/java/test/practica2/resources/JakartaEE91Resource.java
+/home/joanr/ADPractica5/Frontend/Practica2/src/main/java/servlet/modificarImagen.java
+/home/joanr/ADPractica5/Frontend/Practica2/src/main/java/servlet/login.java

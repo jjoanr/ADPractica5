@@ -52,7 +52,6 @@ public class eliminarImagen extends HttpServlet {
         //Crear request
         connection.setRequestMethod("POST");
         String requestBody = "id=" + filename;
-        System.out.println(requestBody);
         
         //Enviar request
         connection.setDoOutput(true);
@@ -63,7 +62,6 @@ public class eliminarImagen extends HttpServlet {
         
         //Obtener respuesta del servicio REST
         int responseCode = connection.getResponseCode();
-        System.out.print(responseCode);
         if (responseCode == HttpURLConnection.HTTP_OK) {           
             request.setAttribute("message", "Image deleted successfully.");
             request.getRequestDispatcher("list.jsp").forward(request, response);

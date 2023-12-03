@@ -66,23 +66,30 @@ public class buscarImagen extends HttpServlet {
         
         // GObtener respuesta del servicio REST
         int responseCode = connection.getResponseCode();
+        
         System.out.println(responseCode);
-        if (responseCode != HttpURLConnection.HTTP_OK) {
+        
+        if(responseCode == 200) {
+            // Leer el JSON en la respuesta
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder jsonResponse = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonResponse.append(line);
+            }
+
+            //Almacenar json en cuerpo solicitud
+            request.setAttribute("searchResultsJson", jsonResponse.toString());
+            request.getRequestDispatcher("mostrarResultados.jsp").forward(request, response);
+        }
+        else if(responseCode == 404) {
             request.setAttribute("errorMessage", "No results were found.");
             request.getRequestDispatcher("buscarImagen.jsp").forward(request, response);
-            return;
         }
-     
-        // Leer el JSON en la respuesta
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        StringBuilder jsonResponse = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            jsonResponse.append(line);
+        else {
+            request.setAttribute("errorMessage", "Internal error.");
+            request.getRequestDispatcher("buscarImagen.jsp").forward(request, response);
         }
-
-        //Almacenar json en cuerpo solicitud
-        request.setAttribute("searchResultsJson", jsonResponse.toString());
-        request.getRequestDispatcher("mostrarResultados.jsp").forward(request, response);
+        connection.disconnect();
     }
 }

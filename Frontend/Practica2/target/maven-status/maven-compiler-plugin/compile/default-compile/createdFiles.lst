@@ -1,7 +1,7 @@
 servlet/buscarImagen.class
 test/practica2/resources/JakartaEE91Resource.class
-servlet/login.class
 servlet/registrar.class
+servlet/login.class
 servlet/eliminarImagen.class
 servlet/registrarImagen.class
 test/practica2/JakartaRestConfiguration.class

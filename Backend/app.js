@@ -9,8 +9,9 @@ const app = express();
 const PORT = 3000; 
 
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-const uploadDir = '/home/joanr/Practica5-AD/images/';
+const uploadDir = '/home/joanr/ADPractica5/images/';
 
 // Multer configuration for file upload
 const storage = multer.diskStorage({
@@ -89,45 +90,144 @@ app.post('/register', upload.single('file'), async (req, res) => {
     }
 });
 
-
-/*
-// Modify image endpoint
-app.post('/modify', upload.none(), async (req, res) => {
-    const { jsonInput } = req.body;
-
+//Modify existing image
+app.post('/modify', async (req, res) => {
     try {
-        // Parse JSON input
-        const { title, oldTitle, description, keywords, author, creator, filename, extension } = JSON.parse(jsonInput);
+        const { title, oldtitle, description, keywords, author, creator, filename, extension } = req.body;
 
-        // Process modifications and handle file operations if necessary (e.g., rename file)
+        // Check if the title is already in use
+        database.connectToDatabase();
+        const titleUsed = await database.titleIsUsed(title, creator);
+        database.disconnectFromDatabase();
 
-        // Update image details in the database
-        await database.modifyImage(title, oldTitle, description, keywords, author, creator, filename);
+        if (title !== oldtitle && titleUsed) {
+            return res.status(409);
+        }
 
-        return res.status(200).send(); // Successful image modification
+        // Rename the file
+        const oldFilePath = `/home/joanr/ADPractica5/images/` + filename;
+        const newFilePath = `/home/joanr/ADPractica5/images/${title}-${creator}${extension}`;
+        fs.renameSync(oldFilePath, newFilePath);
+
+        newfilename = title + '-' + creator + extension;
+
+        // Update the image in the database
+        database.connectToDatabase();
+        await database.modifyImage(title, oldtitle, description, keywords, author, creator, newfilename);
+        database.disconnectFromDatabase();
+
+        return res.status(200).json({ message: 'Image modified successfully' });
     } catch (error) {
-        return res.status(500).send(error.message); // Internal server error
+        return res.status(500).json({ error: 'An error occurred while modifying the image' });
     }
 });
 
-app.post('/delete', (req, res)=>{ 
-    res.status(200); 
-    res.send("Welcome to root URL of Server"); 
-}); 
+// Delete image
+app.post('/delete', async (req, res) => {
+    try {
+        const { id } = req.body;
 
-app.get('/list', (req, res)=>{ 
-    res.status(200); 
-    res.send("Welcome to root URL of Server"); 
-}); 
+        //Delete from local storage
+        const filePath = `/home/joanr/ADPractica5/images/${id}`;
+        fs.unlinkSync(filePath);
 
-app.post('/search', (req, res)=>{ 
-    res.status(200); 
-    res.send("Welcome to root URL of Server"); 
-}); 
+        //Delete information from database
+        database.connectToDatabase();
+        await database.deleteImage(id);
+        database.disconnectFromDatabase();
 
-*/
+        res.status(200).json({ message: 'Image deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: 'An error occurred while deleting the image' });
+    }
+});
 
+//Get all the images
+app.get('/list', async (req, res) => {
+    try {
+        // Retrieve images from the database
+        database.connectToDatabase();
+        const images = await database.getImages();
+        database.disconnectFromDatabase();
 
+        // Process the images
+        let imagesArray = [];
+        for (let image of images) {
+            let imageBase64 = await encodeImageToBase64('/home/joanr/ADPractica5/images/' + image.filename);
+
+            imagesArray.push({
+                title: image.title,
+                description: image.description,
+                keywords: image.keywords,
+                author: image.author,
+                creator: image.creator,
+                creationDate: image.capture_date,
+                introductionDate: image.storage_date,
+                filename: image.filename,
+                imageData: imageBase64
+            });
+        }
+
+        // Send the formatted JSON response
+        return res.status(200).json(imagesArray);
+    } catch (error) {
+        return res.status(500).send('Error retrieving images: ' + error.message);
+    }
+});
+
+// Search image endpoint
+app.post('/search', async (req, res) => {
+    try {
+        const { searchWord } = req.body;
+        
+        // Search image
+        database.connectToDatabase();
+        const images = await database.searchImages(searchWord);
+        database.disconnectFromDatabase();
+
+        // Check if there are no images
+        if (images.length === 0) {
+            return res.status(404).send('No images found');
+        }
+
+        // Process the images
+        let imagesArray = [];
+        for (let image of images) {
+            let imageBase64 = await encodeImageToBase64('/home/joanr/ADPractica5/images/' + image.filename);
+
+            imagesArray.push({
+                title: image.title,
+                description: image.description,
+                keywords: image.keywords,
+                author: image.author,
+                creator: image.creator,
+                creationDate: image.capture_date,
+                introductionDate: image.storage_date,
+                filename: image.filename,
+                imageData: imageBase64
+            });
+        }
+
+        // Send the formatted JSON response
+        return res.status(200).json(imagesArray);
+
+    } catch (err) {
+        return res.status(400);
+    }
+});
+
+//Encode in base 64
+function encodeImageToBase64(filename) {
+    return new Promise((resolve, reject) => {
+        fs.readFile(filename, (err, data) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data.toString('base64'));
+            }
+        });
+    });
+}
 
 app.listen(PORT, (error) =>{ 
     if(!error) 

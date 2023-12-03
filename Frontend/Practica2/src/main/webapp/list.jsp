@@ -62,7 +62,7 @@
         </thead>
         <tbody>
             <%
-                String restServiceUrl = "http://localhost:8080/RestAD/resources/jakartaee9/list";
+                String restServiceUrl = "http://localhost:3000/list";
                 //Conexion
                 URL url = new URL(restServiceUrl);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
