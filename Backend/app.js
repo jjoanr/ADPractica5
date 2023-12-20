@@ -6,12 +6,12 @@ const fs = require('fs');
 
   
 const app = express(); 
-const PORT = 3000; 
+const PORT = 3000;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-const uploadDir = '/home/joanr/ADPractica5/images/';
+const uploadDir = '/home/joanr/project/ADPractica5/images/';
 
 // Multer configuration for file upload
 const storage = multer.diskStorage({
@@ -30,10 +30,12 @@ const upload = multer({ storage: storage });
 // Login endpoint
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
+    console.log(username, password)
     try {
         // Check login credentials against the database
         database.connectToDatabase();
         const isLoggedIn = await database.login(username, password);
+        console.log(isLoggedIn)
         database.disconnectFromDatabase();
 
         if (isLoggedIn) {
@@ -105,8 +107,8 @@ app.post('/modify', async (req, res) => {
         }
 
         // Rename the file
-        const oldFilePath = `/home/joanr/ADPractica5/images/` + filename;
-        const newFilePath = `/home/joanr/ADPractica5/images/${title}-${creator}${extension}`;
+        const oldFilePath = `/home/joanr/project/ADPractica5/images/` + filename;
+        const newFilePath = `/home/joanr/project/ADPractica5/images/${title}-${creator}${extension}`;
         fs.renameSync(oldFilePath, newFilePath);
 
         newfilename = title + '-' + creator + extension;
@@ -128,7 +130,7 @@ app.post('/delete', async (req, res) => {
         const { id } = req.body;
 
         //Delete from local storage
-        const filePath = `/home/joanr/ADPractica5/images/${id}`;
+        const filePath = `/home/joanr/project/ADPractica5/images/${id}`;
         fs.unlinkSync(filePath);
 
         //Delete information from database
@@ -153,7 +155,7 @@ app.get('/list', async (req, res) => {
         // Process the images
         let imagesArray = [];
         for (let image of images) {
-            let imageBase64 = await encodeImageToBase64('/home/joanr/ADPractica5/images/' + image.filename);
+            let imageBase64 = await encodeImageToBase64('/home/joanr/project/ADPractica5/images/' + image.filename);
 
             imagesArray.push({
                 title: image.title,
@@ -193,7 +195,7 @@ app.post('/search', async (req, res) => {
         // Process the images
         let imagesArray = [];
         for (let image of images) {
-            let imageBase64 = await encodeImageToBase64('/home/joanr/ADPractica5/images/' + image.filename);
+            let imageBase64 = await encodeImageToBase64('/home/joanr/project/ADPractica5/images/' + image.filename);
 
             imagesArray.push({
                 title: image.title,

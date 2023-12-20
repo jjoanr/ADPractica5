@@ -6,7 +6,7 @@ let db = null;
 //Connect to database
 function connectToDatabase(databasePath) {
     return new Promise((resolve, reject) => {
-        db = new sqlite3.Database('/home/joanr/ADPractica5/database.db', sqlite3.OPEN_READWRITE, (err) => {
+        db = new sqlite3.Database('/home/joanr/project/ADPractica5/database.db', sqlite3.OPEN_READWRITE, (err) => {
             if (err) {
                 reject(err);
                 return;
@@ -44,9 +44,13 @@ function login(username, password) {
             (err, row) => {
                 if (err) {
                     reject(err);
-                    resolve(false);
                 } else {
-                    resolve(true);
+                    // Check if a user was found in the database
+                    if (row) {
+                        resolve(true); // User and password match
+                    } else {
+                        resolve(false); // User not found or password doesn't match
+                    }                
                 }
             }
         );
