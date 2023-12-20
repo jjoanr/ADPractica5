@@ -45,12 +45,7 @@ function login(username, password) {
                 if (err) {
                     reject(err);
                 } else {
-                    // Check if a user was found in the database
-                    if (row) {
-                        resolve(true); // User and password match
-                    } else {
-                        resolve(false); // User not found or password doesn't match
-                    }                
+                    resolve(row ? true : false);            
                 }
             }
         );
@@ -68,7 +63,7 @@ function registerUser(username, password) {
                     reject(err);
                     resolve(false);
                 } else {
-                    resolve(true);
+                    resolve(true); 
                 }
             }
         );
@@ -86,7 +81,7 @@ function registerImage(title, description, keywords, author, creator, creationDa
                     reject(err);
                     resolve(false);
                 } else {
-                    resolve(true);
+                    resolve(true);                
                 }
             }
         );
